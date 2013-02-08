@@ -1,0 +1,95 @@
+#!/usr/bin/env ruby
+
+# (C) Copyright Greg Whiteley 2013
+# 
+#  This is free software: you can redistribute it and/or modify it
+#  under the terms of the GNU Lesser General Public License as
+#  published by the Free Software Foundation, either version 3 of
+#  the License, or (at your option) any later version.
+#
+#  This library is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU Lesser General Public License for more details.
+#
+#  You should have received a copy of the GNU Lesser General Public
+#  License along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+require 'pathname'
+require 'enumerator'
+require 'pp'
+
+def split_a(array, match)
+  ret = []
+
+  rem = array
+
+  while pos = rem.index(match) do
+    ret << rem.slice(0, pos)
+    rem = rem[pos + 1..-1]
+  end
+  ret << rem
+end
+
+
+path = '.'
+last_path = nil
+
+BUILD_FILE='.upbuild'
+
+path = Pathname(Dir.getwd).enum_for(:ascend).find do |p|
+  (p + '.upbuild').exist?
+end
+if !path
+  $stderr.puts "Couldn't find path to build from"
+  exit 1
+end
+path = path.relative_path_from(Pathname(Dir.getwd))
+
+build_file = path + BUILD_FILE
+build_lines = File.readlines(build_file).map {|x| x.chomp.gsub(/#.*/,'') }.select {|x| x.length > 0}
+
+if build_lines.length < 1
+  $stderr.puts "No command found"
+  exit 2
+end
+
+commands = split_a(build_lines, "&&").map do |command_lines|
+
+  command = command_lines.shift
+  mandatory = []
+  args = command_lines
+  split = command_lines.index("--")
+  if split
+    mandatory = command_lines.slice(0,split)
+    args = command_lines[split + 1..-1]
+  end
+
+  if ARGV.length > 0
+    $stderr.puts "overriding configured settings #{args.inspect}"
+    args = ARGV
+  end
+
+  args = mandatory + args
+
+  [command, args]
+end
+
+
+ret_val = -1
+Dir.chdir(path) do
+
+  commands.each  do  |command,args|
+    puts [command, args] if $DEBUG
+    pid = Process.spawn(command, *args);
+
+    result = Process.wait2(pid)
+    exit(-1) if result.nil?
+
+    ret_val = result.last.exitstatus
+    puts "returned => #{ret_val}" if $DEBUG
+
+    exit(ret_val) if ret_val != 0
+  end
+end
+exit(ret_val)
