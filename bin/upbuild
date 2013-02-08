@@ -18,65 +18,27 @@
 require 'pathname'
 require 'enumerator'
 require 'pp'
+require 'upbuild'
 
-def split_a(array, match)
-  ret = []
+include Upbuild
 
-  rem = array
-
-  while pos = rem.index(match) do
-    ret << rem.slice(0, pos)
-    rem = rem[pos + 1..-1]
-  end
-  ret << rem
-end
-
-
-path = '.'
-last_path = nil
-
-BUILD_FILE='.upbuild'
-
-path = Pathname(Dir.getwd).enum_for(:ascend).find do |p|
-  (p + '.upbuild').exist?
-end
+path = find_build_path(Dir.getwd)
 if !path
   $stderr.puts "Couldn't find path to build from"
   exit 1
 end
-path = path.relative_path_from(Pathname(Dir.getwd))
 
 build_file = path + BUILD_FILE
+
 build_lines = File.readlines(build_file).map {|x| x.chomp.gsub(/#.*/,'') }.select {|x| x.length > 0}
 
-if build_lines.length < 1
-  $stderr.puts "No command found"
-  exit 2
-end
-
-commands = split_a(build_lines, "&&").map do |command_lines|
-
-  command = command_lines.shift
-  mandatory = []
-  args = command_lines
-  split = command_lines.index("--")
-  if split
-    mandatory = command_lines.slice(0,split)
-    args = command_lines[split + 1..-1]
-  end
-
-  if ARGV.length > 0
-    $stderr.puts "overriding configured settings #{args.inspect}"
-    args = ARGV
-  end
-
-  args = mandatory + args
-
-  [command, args]
-end
-
+commands = read_commands(build_file, ARGV)
 
 ret_val = -1
+if commands.length < 1
+  $stderr.puts "No command found"
+end
+
 Dir.chdir(path) do
 
   commands.each  do  |command,args|
