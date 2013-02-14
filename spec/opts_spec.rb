@@ -65,6 +65,14 @@ describe "options" do
         l.first.should eq("hello world its a file")
       end
     end
+    it "will emit the file at the end even on failure" do
+      Dir.chdir "outfile/fail" do
+        l,r = run() 
+        r.should eq(1)
+        l.length.should eq(1)
+        l.first.should eq("error: badness")
+      end
+    end
   end
 
 end

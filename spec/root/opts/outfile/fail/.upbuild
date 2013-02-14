@@ -1,0 +1,3 @@
+./fail.sh
+@outfile=log.txt
+log.txt
