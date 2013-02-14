@@ -51,6 +51,17 @@ Dir.chdir(path) do
     ret_val = result.last.exitstatus
     puts "returned => #{ret_val}" if $DEBUG
 
+    if command.opts and command.opts[:outfile]
+      outfile = Pathname(command.opts[:outfile])
+      if outfile.exist?
+        File.open(outfile, "r") do |f|
+          f.each_line do |l|
+            puts l
+          end
+        end
+      end
+    end
+
     exit(ret_val) if ret_val != 0
   end
 end

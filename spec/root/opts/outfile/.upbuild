@@ -1,0 +1,7 @@
+./out.sh
+@outfile=out.txt
+hello
+world
+--
+into
+file

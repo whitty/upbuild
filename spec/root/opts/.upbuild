@@ -1,0 +1,7 @@
+echo
+@outfile=out.txt
+hello
+world
+--
+its
+monday

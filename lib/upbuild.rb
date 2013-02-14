@@ -32,11 +32,16 @@ module Upbuild
 
       command = command_lines.shift
       mandatory = []
+      opts = {}
       args = command_lines
-      split = command_lines.index("--")
+      args = args.reject do |x|
+        opt = x.match(/^@(outfile)=/)
+        opts[opt[1].to_sym] = opt.post_match if opt
+      end
+      split = args.index("--")
       if split
-        mandatory = command_lines.slice(0,split)
-        args = command_lines[split + 1..-1]
+        mandatory = args.slice(0,split)
+        args = args[split + 1..-1]
       end
 
       if argv.length > 0
@@ -45,7 +50,7 @@ module Upbuild
 
       args = mandatory + args
 
-      command ? Command.new(command, args, nil) : nil
+      command ? Command.new(command, args, opts) : nil
     end.select {|x| x}
   end
 
