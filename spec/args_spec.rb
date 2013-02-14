@@ -1,3 +1,5 @@
+#/usr/bin/env ruby -w
+
 # (C) Copyright Greg Whiteley 2010-2013
 # 
 #  This is free software: you can redistribute it and/or modify it
@@ -13,17 +15,35 @@
 #  You should have received a copy of the GNU Lesser General Public
 #  License along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-shared_context "command run" do
-  before :all do
-    @base = Dir.getwd
-  end
+require 'rspec'
+
+require 'spec_helper'
+require 'upbuild'
+require 'pp'
+
+describe "arguments" do
+  include_context "command run"
 
   before :all do
-    raise RuntimeError.new "Failed to restore path environment" if @base != Dir.getwd
+    Dir.chdir "spec/root/args"
   end
 
-  def run(*args)
-    lines = `env RUBYLIB=#{Pathname(@base) + 'lib'} ruby #{Pathname(@base) + 'bin' + 'upbuild'} #{args.join(' ')}`.split("\n")
-    [lines, $?.exitstatus]
+  after :all do
+    Dir.chdir "../../.."
   end
+
+  it "uses all args in default run" do
+    l,r = run() 
+    r.should eq(0)
+    l.length.should eq(1)
+    l.first.should eq("hello world its monday")
+  end
+
+  it "replaces arguments after the -- if provided" do
+    l,r = run('c\\\'est', 'moi') 
+    r.should eq(0)
+    l.length.should eq(1)
+    l.first.should eq("hello world c'est moi")
+  end
+
 end
