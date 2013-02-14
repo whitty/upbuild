@@ -15,24 +15,19 @@
 #  You should have received a copy of the GNU Lesser General Public
 #  License along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#require 'spec_helper'
+require 'spec_helper'
 require 'upbuild'
 require 'pp'
 
 describe "basic levels" do
+  include_context "command run"
 
   before :all do
-    @base = Dir.getwd
     Dir.chdir "spec/root"
   end
 
   after :all do
     Dir.chdir "../.."
-  end
-
-  def run(*args)
-    lines = `env RUBYLIB=#{Pathname(@base) + 'lib'} ruby #{Pathname(@base) + 'bin' + 'upbuild'} #{args.join(' ')}`.split("\n")
-    [lines, $?.exitstatus]
   end
 
   def succeed_1_match(dir, match)
