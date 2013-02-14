@@ -23,6 +23,8 @@ module Upbuild
     path = path.relative_path_from(Pathname(Dir.getwd)) if path
   end
 
+  Command = Struct.new(:command, :args, :opts)
+
   def read_commands(build_file, argv)
 
     build_lines = File.readlines(build_file).map {|x| x.chomp.gsub(/#.*/,'') }.select {|x| x.length > 0}
@@ -43,7 +45,7 @@ module Upbuild
 
       args = mandatory + args
 
-      command ? [command, args] : nil
+      command ? Command.new(command, args, nil) : nil
     end.select {|x| x}
   end
 

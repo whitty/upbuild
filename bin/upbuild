@@ -41,9 +41,9 @@ end
 
 Dir.chdir(path) do
 
-  commands.each  do  |command,args|
-    puts [command, args] if $DEBUG
-    pid = Process.spawn(command, *args);
+  commands.each  do  |command|
+    puts [command.command, command.args] if $DEBUG
+    pid = Process.spawn(command.command, *command.args);
 
     result = Process.wait2(pid)
     exit(-1) if result.nil?
