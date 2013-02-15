@@ -20,5 +20,6 @@ task :default => [:spec]
 
 RSpec::Core::RakeTask.new do |t|
   t.pattern = 'spec/*_spec.rb'
+  t.rspec_opts = ['-fd']
   t.ruby_opts = ['-w']
 end
