@@ -49,6 +49,19 @@ describe "options" do
   end
 
   context "outfile" do
+
+    # clean up log-files
+    after :each do
+      base = Pathname(Dir.getwd) + 'outfile'
+      [
+       base + 'out.txt',
+       base + 'fail' + 'log.txt',
+       base + 'fail' + 'out.txt',
+      ].each do |x|
+        FileUtils.rm(x) if x.exist?
+      end
+    end
+
     it "will emit the file at the end" do
       Dir.chdir "outfile" do
         l,r = run() 
