@@ -43,13 +43,26 @@ Dir.chdir(path) do
 
   commands.each  do  |command|
     puts [command.command, command.args] if $DEBUG
-    pid = Process.spawn(command.command, *command.args);
 
-    result = Process.wait2(pid)
-    exit(-1) if result.nil?
+    result = nil
+    begin
 
-    ret_val = result.last.exitstatus
-    puts "returned => #{ret_val}" if $DEBUG
+      pid = Process.spawn(command.command, *command.args);
+      result = Process.wait2(pid)
+
+      if result.nil?
+        ret_val = -2
+      end
+    rescue Interrupt => e
+      # Ctrl-C pressed, close gracefully
+      result = nil
+      ret_val = -1
+    end
+
+    if result
+      ret_val = result.last.exitstatus
+      puts "returned => #{ret_val}" if $DEBUG
+    end
 
     if command.opts and command.opts[:outfile]
       outfile = Pathname(command.opts[:outfile])

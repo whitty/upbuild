@@ -1,4 +1,4 @@
-sleep
+./delay.sh
 3s
 &&
 echo

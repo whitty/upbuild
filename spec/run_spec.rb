@@ -19,8 +19,6 @@ require 'rspec'
 
 require 'spec_helper'
 require 'upbuild'
-require 'enumerator'
-require 'pp'
 
 describe "Running" do
   include_context "command run"
@@ -86,6 +84,45 @@ describe "Running" do
       l.should eq(FILES[0,3])
     end
 
+  end
+
+  context "While running a command" do
+
+    before :all do
+      Dir.chdir "delay"
+    end
+
+    after :all do
+      Dir.chdir ".."
+    end
+
+    it "Check runs normally" do
+
+      # script outputs parent id
+      l,r = run do |p,inp|
+        line = inp.readline.chomp
+        pid = Integer(line)
+        # do nothing special, wait for it to end
+      end
+
+      r.should eq(0)
+      l.length.should eq(1)
+      l.first.should eq('second')
+    end
+
+    it "if a ctrl-c arrives close gracefully, with fail" do
+      # script outputs parent id
+      l,r,err = run() do |p,inp|
+        line = inp.readline.chomp
+        pid = Integer(line)
+        Process.kill('INT', pid)
+      end
+
+      # Ensure no ruby Interupt barf message
+      err.find {|x| x =~ /: Interrupt$/}.should be_nil
+      r.should eq(255)
+      l.length.should eq(0)
+    end
   end
 
 end
