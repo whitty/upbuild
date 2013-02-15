@@ -1,0 +1,8 @@
+./run.sh
+first
+&&
+./run.sh
+second
+&&
+./run.sh
+third
