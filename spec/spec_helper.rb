@@ -22,8 +22,33 @@ shared_context "command run" do
     raise RuntimeError.new "Failed to restore path environment" if @base != Dir.getwd
   end
 
-  def run(*args)
-    lines = `env RUBYLIB=#{Pathname(@base) + 'lib'} ruby #{Pathname(@base) + 'bin' + 'upbuild'} #{args.join(' ')}`.split("\n")
-    [lines, $?.exitstatus]
+  # Run upbuild with given optional args
+  # If block provided yield the pid to it.
+  # After proc is complete block waiting on completion.
+  def run(*args, &block)
+    
+    command = ['env', "RUBYLIB=#{Pathname(@base) + 'lib'}", 'ruby', (Pathname(@base) + 'bin' + 'upbuild').to_s]
+    command.concat(args)
+
+    result = nil
+    lines = []
+    begin
+      r,w = IO.pipe
+      pid = Process.spawn(*command, :out => w);
+      w.close
+      block.call(pid) if block
+
+      result = Process.wait2(pid)
+      if result
+        lines = r.enum_for(:each_line).map {|x| x.chomp}
+      end
+    ensure
+      w.close unless w.closed?
+      r.close
+    end
+
+    if result
+      [lines, result.last.exitstatus]
+    end
   end
 end

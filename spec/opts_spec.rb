@@ -41,7 +41,7 @@ describe "options" do
     end
 
     it "won't emit option with args" do
-      l,r = run('c\\\'est', 'moi') 
+      l,r = run('c\'est', 'moi') 
       r.should eq(0)
       l.length.should eq(1)
       l.first.should eq("hello world c'est moi")

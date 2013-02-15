@@ -40,7 +40,7 @@ describe "arguments" do
   end
 
   it "replaces arguments after the -- if provided" do
-    l,r = run('c\\\'est', 'moi') 
+    l,r = run('c\'est', 'moi') 
     r.should eq(0)
     l.length.should eq(1)
     l.first.should eq("hello world c'est moi")
