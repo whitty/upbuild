@@ -21,6 +21,8 @@ require 'spec_helper'
 require 'upbuild'
 require 'pp'
 
+include Upbuild
+
 describe "options" do
   include_context "command run"
 
@@ -88,4 +90,62 @@ describe "options" do
     end
   end
 
+  context "retmap" do
+
+    context "parsing" do
+      it "parses some simple mappings" do
+        [
+         ['1=>0', {1=>0}],
+         [' 1 => 0 ', {1=>0}],
+         [' 1=>44 ', {1=>44}],
+         ['55 => 0', {55=>0}],
+         ['10=>100', {10=>100}],
+         ['1=>0,2=>4,4=>100', {1=>0, 2=>4, 4=>100}],
+         [' 1=> 0 , 2 => 4 ,4 =>100', {1=>0, 2=>4, 4=>100}],
+        ].each do |s, exp|
+          Upbuild.parse_retmap(s).should eq(exp)
+        end
+      end
+    end
+
+    before :all do
+      Dir.chdir "retmap"
+    end
+
+    after :all do
+      Dir.chdir ".."
+    end
+
+    it "unmapped zero is unchanged" do
+      l,r = run('0') 
+      r.should eq(0)
+    end
+    it "one is mapped to zero (success)" do
+      l,r = run('1') 
+      r.should eq(0)
+    end
+    it "two is mapped to 4 (fail)" do
+      l,r = run('2') 
+      r.should eq(4)
+    end
+    it "four is mapped to 100 (fail)" do
+      l,r = run('4') 
+      r.should eq(100)
+    end
+
+    it "Bad formats are reported with fail" do
+      Dir.chdir "error" do
+        l,r,err = run('4') 
+        r.should eq(253)
+        # no output on stdout
+        l.length.should eq(0)
+        # Error message on stderr
+        err.length.should eq(1)
+        err.first.should match(/Unable to parse '@retmap=.*'/)
+        # should include the bit that failed to parse
+        err.first.should match(/bad=>0/)
+      end
+    end
+
+  end
 end

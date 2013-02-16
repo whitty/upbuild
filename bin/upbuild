@@ -62,6 +62,20 @@ Dir.chdir(path) do
     if result
       ret_val = result.last.exitstatus
       puts "returned => #{ret_val}" if $DEBUG
+
+      # check for a remapped return value
+      if command.opts and command.opts[:retmap]
+        begin
+          map = parse_retmap(command.opts[:retmap])
+          if map.member?(ret_val)
+            ret_val = map[ret_val]
+            puts "remapped => #{ret_val}" if $DEBUG
+          end
+        rescue ArgumentError
+          $stderr.puts "Unable to parse '@retmap=#{command.opts[:retmap]}'"
+          ret_val = -3
+        end
+      end
     end
 
     if command.opts and command.opts[:outfile]

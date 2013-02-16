@@ -35,7 +35,7 @@ module Upbuild
       opts = {}
       args = command_lines
       args = args.reject do |x|
-        opt = x.match(/^@(outfile)=/)
+        opt = x.match(/^@(outfile|retmap)=/)
         opts[opt[1].to_sym] = opt.post_match if opt
       end
       split = args.index("--")
@@ -52,6 +52,15 @@ module Upbuild
 
       command ? Command.new(command, args, opts) : nil
     end.select {|x| x}
+  end
+
+  def parse_retmap(s)
+    h = {}
+    s.split(',').each do |rule|
+      key_s, value_s = rule.split('=>', 2)
+      h[Integer(key_s)] = Integer(value_s)
+    end
+    h
   end
 
 end
