@@ -78,3 +78,21 @@ files, so we may synthesise some output.
 The following build will execute "uv4 -j0 -b project.uvproj -o
 log.txt" and emit the contents of log.txt at the end of the run -
 irrespective of sucess or failure.
+
+### Fixing odd error codes
+
+Some build tools return error codes that may not represent an error.
+Use the option @retmap to provide a comma separated list of
+return-code mappings - integer=>integer.
+
+    uv4
+    # uv4 returns 1 if errors occurred - our library includes
+    # suck so map 1 to a success
+    @retmap=1=>0
+    -j0
+    -b
+    project.uvproj
+    -o log.txt
+
+The following build will execute "uv4 -j0 -b project.uvproj -o
+log.txt" as above, but return-value of 1 will be mapped to success (0)
