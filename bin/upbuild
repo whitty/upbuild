@@ -32,11 +32,18 @@ build_file = path + BUILD_FILE
 
 build_lines = File.readlines(build_file).map {|x| x.chomp.gsub(/#.*/,'') }.select {|x| x.length > 0}
 
-commands = read_commands(build_file, ARGV)
+commands, opts = read_commands(build_file, ARGV)
 
 ret_val = -1
 if commands.length < 1
   $stderr.puts "No commands found"
+end
+
+if opts[:print]
+  commands.each do |command|
+    puts "#{command.command} #{command.args.join(' ')}"
+  end
+  exit 0
 end
 
 Dir.chdir(path) do

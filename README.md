@@ -126,3 +126,8 @@ Or you can add tags to allow later selection of subsets.  For example:
 When run as `upbuild` all commands will run - select a subset using
 `--ub-select=<tag>`.  Eg running `upbuild --ub-select=host` would
 exclude the `make cross` command.
+
+### Printing commands
+
+Print the commands that would be executed, but don't execute them
+using --ub-print.

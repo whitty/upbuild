@@ -28,7 +28,7 @@ module Upbuild
   def read_commands(build_file, argv)
     args, opts = parse_args(argv)
     commands = parse_commands(File.readlines(build_file), args)
-    return filter_commands(commands, opts[:select])
+    [filter_commands(commands, opts[:select]), opts]
   end
 
   def parse_args(argv)
@@ -37,6 +37,8 @@ module Upbuild
       case arg
       when /^--ub-select=(.+)$/
         opts[:select]=$1
+      when /^--ub-print$/
+        opts[:print]=true
       when "--"
         argv.shift
         break

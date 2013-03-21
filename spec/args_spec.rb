@@ -97,4 +97,18 @@ describe "arguments" do
     end
   end
 
+  it "prints command if --ub-print specified" do
+    l,r = run('--ub-print') 
+    r.should eq(0)
+    l.length.should eq(1)
+    l.first.should eq("echo hello world its monday")
+  end
+
+  it "prints command if --ub-print specified including args" do
+    l,r = run('--ub-print', 'good', 'morning') 
+    r.should eq(0)
+    l.length.should eq(1)
+    l.first.should eq("echo hello world good morning")
+  end
+
 end
