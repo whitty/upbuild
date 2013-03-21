@@ -1,0 +1,11 @@
+echo
+one
+@disable
+&&
+echo
+@disable
+two
+&&
+echo
+@disable
+three

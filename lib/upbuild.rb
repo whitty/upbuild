@@ -26,6 +26,31 @@ module Upbuild
   Command = Struct.new(:command, :args, :opts)
 
   def read_commands(build_file, argv)
+    commands = parse_commands(build_file, argv)
+    return filter_commands(commands, nil)
+  end
+
+  def filter_commands(commands, selection)
+    return commands.select do |c|
+      if c.opts
+        if c.opts[:disable]
+          false
+        elsif c.opts[:tags]
+          if selection
+            true                # not implemented
+          else
+            true                # don't filter
+          end
+        else
+          true                  # don't filter
+        end
+      else
+        true                    # don't filter
+      end
+    end
+  end
+
+  def parse_commands(build_file, argv)
 
     build_lines = File.readlines(build_file).map {|x| x.chomp.gsub(/#.*/,'') }.select {|x| x.length > 0}
     commands = split_a(build_lines, "&&").map do |command_lines|
@@ -36,7 +61,12 @@ module Upbuild
       args = command_lines
       args = args.reject do |x|
         opt = x.match(/^@(outfile|retmap)=/)
-        opts[opt[1].to_sym] = opt.post_match if opt
+        if opt
+          opts[opt[1].to_sym] = opt.post_match
+        else
+          opt = x.match(/^@(disable)\s*$/)
+          opts[opt[1].to_sym] = true if opt
+        end
       end
       split = args.index("--")
       if split

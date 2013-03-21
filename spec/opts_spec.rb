@@ -148,4 +148,42 @@ describe "options" do
     end
 
   end
+
+  context "disable" do
+
+    before :all do
+      Dir.chdir "disable"
+    end
+
+    after :all do
+      Dir.chdir ".."
+    end
+
+    it "will skip the single command marked as @disable" do
+      Dir.chdir "one" do
+        l,r = run() 
+        r.should eq(0)
+        l.length.should eq(2)
+        l.first.should eq("one")
+        l.last.should eq("three")
+      end
+    end
+
+    it "will skip the only command if marked @disable" do
+      Dir.chdir "all_one" do
+        l,r = run() 
+        r.should eq(255)
+        l.length.should eq(0)
+      end
+    end
+
+    it "will skip all commands if all marked @disable" do
+      Dir.chdir "all" do
+        l,r = run() 
+        r.should eq(255)
+        l.length.should eq(0)
+      end
+    end
+
+  end
 end

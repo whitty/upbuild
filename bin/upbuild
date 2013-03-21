@@ -36,7 +36,7 @@ commands = read_commands(build_file, ARGV)
 
 ret_val = -1
 if commands.length < 1
-  $stderr.puts "No command found"
+  $stderr.puts "No commands found"
 end
 
 Dir.chdir(path) do

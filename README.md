@@ -96,3 +96,16 @@ return-code mappings - integer=>integer.
 
 The following build will execute "uv4 -j0 -b project.uvproj -o
 log.txt" as above, but return-value of 1 will be mapped to success (0)
+
+### Controlling execution
+
+Sometimes you need to exclude a command from a list - mark it as
+@disable.
+
+    make
+    tests
+    &&
+    make
+    @disable
+    install
+
