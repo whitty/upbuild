@@ -46,4 +46,55 @@ describe "arguments" do
     l.first.should eq("hello world c'est moi")
   end
 
+  it "consumes -- as if it wasn't there" do
+    l,r = run('--') 
+    r.should eq(0)
+    l.length.should eq(1)
+    l.first.should eq("hello world its monday")
+  end
+
+  it "consumes -- once then passes all others" do
+    l,r = run('--', '--') 
+    r.should eq(0)
+    l.length.should eq(1)
+    l.first.should eq("hello world --")
+  end
+
+  it "consumes known arguments at the start" do
+    [ 
+     ['--ub-select=5'],
+     ['--ub-select=blah', '--'],
+    ].each do | args |
+      l,r = run(*args) 
+      r.should eq(0)
+      l.length.should eq(1)
+      l.first.should eq("hello world its monday")
+    end
+  end
+
+  it "passes unknown arguments through" do
+    [ 
+     ['--ub-unknown'],
+     ['--ub-unknown=1'],
+    ].each do | args |
+      l,r = run(*args)
+      r.should eq(0)
+      l.length.should eq(1)
+      l.first.should eq("hello world #{args.join(' ')}")
+    end
+  end
+
+  it "passes known arguments after --" do
+    [ 
+     ['--', '--ub-select=5'],
+     ['--', '--ub-select=blah'],
+    ].each do | args |
+      l,r = run(*args) 
+      args.shift                # consume the --
+      r.should eq(0)
+      l.length.should eq(1)
+      l.first.should eq("hello world #{args.join(' ')}")
+    end
+  end
+
 end

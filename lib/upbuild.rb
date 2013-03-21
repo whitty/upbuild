@@ -26,8 +26,26 @@ module Upbuild
   Command = Struct.new(:command, :args, :opts)
 
   def read_commands(build_file, argv)
-    commands = parse_commands(build_file, argv)
-    return filter_commands(commands, nil)
+    args, opts = parse_args(argv)
+    commands = parse_commands(File.readlines(build_file), args)
+    return filter_commands(commands, opts[:select])
+  end
+
+  def parse_args(argv)
+    opts = {}
+    while arg = argv.first
+      case arg
+      when /^--ub-select=(.+)$/
+        opts[:select]=$1
+      when "--"
+        argv.shift
+        break
+      else
+        break
+      end
+      argv.shift
+    end
+    return argv, opts
   end
 
   def filter_commands(commands, selection)
@@ -37,7 +55,8 @@ module Upbuild
           false
         elsif c.opts[:tags]
           if selection
-            true                # not implemented
+            tags = c.opts[:tags].split(',')
+            tags.member?(selection.to_s)
           else
             true                # don't filter
           end
@@ -50,9 +69,9 @@ module Upbuild
     end
   end
 
-  def parse_commands(build_file, argv)
+  def parse_commands(lines, argv)
 
-    build_lines = File.readlines(build_file).map {|x| x.chomp.gsub(/#.*/,'') }.select {|x| x.length > 0}
+    build_lines = lines.map {|x| x.chomp.gsub(/#.*/,'') }.select {|x| x.length > 0}
     commands = split_a(build_lines, "&&").map do |command_lines|
 
       command = command_lines.shift
@@ -60,7 +79,7 @@ module Upbuild
       opts = {}
       args = command_lines
       args = args.reject do |x|
-        opt = x.match(/^@(outfile|retmap)=/)
+        opt = x.match(/^@(outfile|retmap|tags)=/)
         if opt
           opts[opt[1].to_sym] = opt.post_match
         else

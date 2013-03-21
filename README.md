@@ -109,3 +109,20 @@ Sometimes you need to exclude a command from a list - mark it as
     @disable
     install
 
+Or you can add tags to allow later selection of subsets.  For example:
+
+    make
+    @tags=host
+    tests
+    &&
+    make
+    @tags=target
+    cross
+    &&
+    make
+    @tags=release,host
+    install
+
+When run as `upbuild` all commands will run - select a subset using
+`--ub-select=<tag>`.  Eg running `upbuild --ub-select=host` would
+exclude the `make cross` command.

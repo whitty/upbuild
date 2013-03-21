@@ -1,0 +1,15 @@
+echo
+@tags=odd,first,prime
+one
+&&
+echo
+@tags=even,prime
+two
+&&
+echo
+@tags=odd,prime
+three
+&&
+echo
+@tags=even,last
+four
