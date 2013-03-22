@@ -51,52 +51,66 @@ Dir.chdir(path) do
   commands.each  do  |command|
     puts [command.command, command.args] if $DEBUG
 
-    result = nil
-    begin
-
-      pid = Process.spawn(command.command, *command.args);
-      result = Process.wait2(pid)
-
-      if result.nil?
-        ret_val = -2
+    # Support recursive upbuild by dropping back a level if command is
+    # 'upbuild'
+    sub_path = path
+    if command.command == 'upbuild'
+      sub_path = path + '..'
+      if sub_path.realpath == path.realpath
+        $stderr.puts "Refusing to recurse into same directory"
+        next
       end
-    rescue Interrupt => e
-      # Ctrl-C pressed, close gracefully
+    end
+
+    Dir.chdir(sub_path) do
+
       result = nil
-      ret_val = -1
-    end
+      begin
 
-    if result
-      ret_val = result.last.exitstatus
-      puts "returned => #{ret_val}" if $DEBUG
+        pid = Process.spawn(command.command, *command.args);
+        result = Process.wait2(pid)
 
-      # check for a remapped return value
-      if command.opts and command.opts[:retmap]
-        begin
-          map = parse_retmap(command.opts[:retmap])
-          if map.member?(ret_val)
-            ret_val = map[ret_val]
-            puts "remapped => #{ret_val}" if $DEBUG
+        if result.nil?
+          ret_val = -2
+        end
+      rescue Interrupt => e
+        # Ctrl-C pressed, close gracefully
+        result = nil
+        ret_val = -1
+      end
+
+      if result
+        ret_val = result.last.exitstatus
+        puts "returned => #{ret_val}" if $DEBUG
+
+        # check for a remapped return value
+        if command.opts and command.opts[:retmap]
+          begin
+            map = parse_retmap(command.opts[:retmap])
+            if map.member?(ret_val)
+              ret_val = map[ret_val]
+              puts "remapped => #{ret_val}" if $DEBUG
+            end
+          rescue ArgumentError
+            $stderr.puts "Unable to parse '@retmap=#{command.opts[:retmap]}'"
+            ret_val = -3
           end
-        rescue ArgumentError
-          $stderr.puts "Unable to parse '@retmap=#{command.opts[:retmap]}'"
-          ret_val = -3
         end
       end
-    end
 
-    if command.opts and command.opts[:outfile]
-      outfile = Pathname(command.opts[:outfile])
-      if outfile.exist?
-        File.open(outfile, "r") do |f|
-          f.each_line do |l|
-            puts l
+      if command.opts and command.opts[:outfile]
+        outfile = Pathname(command.opts[:outfile])
+        if outfile.exist?
+          File.open(outfile, "r") do |f|
+            f.each_line do |l|
+              puts l
+            end
           end
         end
       end
-    end
 
-    exit(ret_val) if ret_val != 0
+      exit(ret_val) if ret_val != 0
+    end
   end
 end
 exit(ret_val)

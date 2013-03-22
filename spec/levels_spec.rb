@@ -64,3 +64,41 @@ describe "basic levels" do
   end
 
 end
+
+describe "level recursion" do
+  include_context "command run"
+
+  before :all do
+    Dir.chdir "spec/root/recurse"
+  end
+
+  after :all do
+    Dir.chdir "../../.."
+  end
+
+  it "runs normally at the top level" do
+    l,r = run()
+    r.should eq(0)
+    l.length.should eq(1)
+    l.first.should eq("hello world")
+  end
+
+  it "allows upbuild to be run from a higher level to call a lower level" do
+    Dir.chdir('higher') do
+      l,r = run()
+      r.should eq(0)
+      l.length.should eq(1)
+      l.first.should eq("hello there")
+    end
+  end
+
+  it "allows upbuild to be run from a higher level to call a lower level with args" do
+    Dir.chdir('higher') do
+      l,r = run('all')
+      r.should eq(0)
+      l.length.should eq(1)
+      l.first.should eq("hello there all")
+    end
+  end
+
+end
