@@ -17,7 +17,6 @@
 
 require 'pathname'
 require 'enumerator'
-require 'pp'
 require 'upbuild'
 
 include Upbuild
