@@ -45,6 +45,10 @@ if opts[:print]
   exit 0
 end
 
+# normalise the path, so the path remains valid inside
+# the .chdir scope
+path = path.realpath
+
 Dir.chdir(path) do
 
   commands.each  do  |command|

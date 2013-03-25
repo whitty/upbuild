@@ -35,7 +35,7 @@ describe "basic levels" do
       l,r = run()
       r.should eq(0)
       l.length.should eq(1)
-      l.first.should eq(match)
+      l.first.should eq(match.to_s)
     end
   end
 
@@ -47,10 +47,21 @@ describe "basic levels" do
       succeed_1_match("depth1", "depth1")
     end
 
-    it "skips over directories with no buikd file" do
+    it "skips over directories with no build file" do
+      succeed_1_match("depth1/depth2.1/depth2.2/depth2.3/depth2.4", "depth2.3")
       succeed_1_match("depth1/depth2.1/depth2.2/depth2.3", "depth2.3")
       succeed_1_match("depth1/depth2.1/depth2.2", "depth2.1")
       succeed_1_match("depth1/depth2.1", "depth2.1")
+    end
+
+    it "runs in the right directory" do
+      wd = Pathname(Dir.getwd)
+      # Nothing in 4 - pwd is 3
+      succeed_1_match("wd/1/2/3/4", wd + 'wd/1/2/3')
+      succeed_1_match("wd/1/2/3", wd + 'wd/1/2/3')
+      # Nothing in 2 - pwd is 1
+      succeed_1_match("wd/1/2", wd + 'wd/1')
+      succeed_1_match("wd/1", wd + 'wd/1')
     end
 
     it "returns failure if nothing found" do
@@ -94,6 +105,15 @@ describe "level recursion" do
 
   it "allows upbuild to be run from a higher level to call a lower level with args" do
     Dir.chdir('higher') do
+      l,r = run('all')
+      r.should eq(0)
+      l.length.should eq(1)
+      l.first.should eq("hello there all")
+    end
+  end
+
+  it "works when original directory has no .upbuild file" do
+    Dir.chdir('higher/still') do
       l,r = run('all')
       r.should eq(0)
       l.length.should eq(1)
