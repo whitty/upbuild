@@ -97,6 +97,13 @@ return-code mappings - integer=>integer.
 The following build will execute "uv4 -j0 -b project.uvproj -o
 log.txt" as above, but return-value of 1 will be mapped to success (0)
 
+### Printing commands
+
+Print the commands that would be executed, but don't execute them
+using --ub-print.
+
+## Advanced usage
+
 ### Controlling execution
 
 Sometimes you need to exclude a command from a list - mark it as
@@ -127,7 +134,32 @@ When run as `upbuild` all commands will run - select a subset using
 `--ub-select=<tag>`.  Eg running `upbuild --ub-select=host` would
 exclude the `make cross` command.
 
-### Printing commands
+### Recursive calls
 
-Print the commands that would be executed, but don't execute them
-using --ub-print.
+If the command being invoked is upbuild itself it will be invoked from
+the next level down.  You can use this to layer your calls, or provide
+scoping.
+
+    $ cat ../.upbuild
+    make
+    link_only
+    $ cat .upbuild
+    make
+    component1
+    component1_tests
+    &&
+    upbuild
+
+Invoking upbuild in the component1 directory will build the local
+component, then pass up the chain for the next action - relinking.
+
+Combine this with --ub-select to rebuild a single tage based on your
+location.  For example assuming the .upbuild file from the @tags
+example, you may have the following in a target sub-directory:
+
+    $ cat src/target/.upbuild
+    upbuild
+    --ub-select=target
+
+Builds under src/target will only invoke commands tagged with
+'target'.
