@@ -84,6 +84,8 @@ describe "arguments" do
     end
   end
 
+  # TODO - choose a more benign argument than --ub-select to test
+  # passing of arguments.
   it "passes known arguments after --" do
     [ 
      ['--', '--ub-select=5'],

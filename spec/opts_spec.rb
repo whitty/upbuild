@@ -203,25 +203,25 @@ describe "options" do
     it "is ignored by default" do
       l,r = run() 
       r.should eq(0)
-      l.should eq(['one', 'two', 'three', 'four'])
+      l.should eq(['zero', 'one', 'two', 'three', 'four'])
     end
 
-    it "selects tags that match (1)" do
+    it "selects only tags that match (1)" do
       l,r = run('--ub-select=odd') 
       r.should eq(0)
       l.should eq(['one', 'three'])
     end
-    it "selects tags that match (2)" do
+    it "selects only tags that match (2)" do
       l,r = run('--ub-select=even') 
       r.should eq(0)
       l.should eq(['two', 'four'])
     end
-    it "selects tags that match (3)" do
+    it "selects only tags that match (3)" do
       l,r = run('--ub-select=last') 
       r.should eq(0)
       l.should eq(['four'])
     end
-    it "selects tags that match (4)" do
+    it "selects only tags that match (4)" do
       l,r = run('--ub-select=prime') 
       r.should eq(0)
       l.should eq(['one', 'two', 'three'])

@@ -1,4 +1,8 @@
 echo
+# note - no tags
+zero
+&&
+echo
 @tags=odd,first,prime
 one
 &&

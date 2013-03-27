@@ -51,22 +51,18 @@ module Upbuild
   end
 
   def filter_commands(commands, selection)
-    return commands.select do |c|
-      if c.opts
-        if c.opts[:disable]
-          false
-        elsif c.opts[:tags]
-          if selection
-            tags = c.opts[:tags].split(',')
-            tags.member?(selection.to_s)
-          else
-            true                # don't filter
-          end
+    commands.select do |c|
+      if c.opts and c.opts[:disable]
+        false                   # disabled
+      elsif selection
+        if c.opts and c.opts[:tags]
+          tags = c.opts[:tags].split(',')
+          tags.member?(selection.to_s)
         else
-          true                  # don't filter
+          false                 # selection defined, but no tags
         end
       else
-        true                    # don't filter
+        true                    # include all others
       end
     end
   end
