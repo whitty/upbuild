@@ -76,6 +76,10 @@ Dir.chdir(path) do
         if result.nil?
           ret_val = -2
         end
+      rescue Errno::ENOENT => e
+        $stderr.puts "#{command.command}: command not found"
+        result = nil
+        ret_val = -4
       rescue Interrupt => e
         # Ctrl-C pressed, close gracefully
         result = nil

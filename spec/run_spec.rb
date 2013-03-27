@@ -127,4 +127,30 @@ describe "Running" do
     end
   end
 
+  context "While running a command" do
+
+    before :all do
+      Dir.chdir "missing"
+    end
+
+    after :all do
+      Dir.chdir ".."
+    end
+
+    it "fails gracefully if command doesn't exists" do
+
+      # script outputs parent id
+      l,r,err = run
+
+      err.join.should_not match(/in <main>/)
+      err.join.should_not match(/spawn/)
+
+      err.length.should eq(1)
+      err.first.should eq('./doesn_t: command not found')
+
+      r.should eq(256 - 4)
+      l.length.should eq(0)
+    end
+  end
+
 end
