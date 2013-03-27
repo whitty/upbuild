@@ -31,7 +31,7 @@ shared_context "command run" do
   # After proc is complete block waiting on completion.
   def run(*args, &block)
     
-    command = ['env', "RUBYLIB=#{Pathname(@base) + 'lib'}", 'ruby', (Pathname(@base) + 'bin' + 'upbuild').to_s]
+    command = ['env', "PATH=#{Pathname(@base) + 'bin'}:#{ENV['PATH']}", "RUBYLIB=#{Pathname(@base) + 'lib'}", 'ruby', (Pathname(@base) + 'bin' + 'upbuild').to_s]
     command.concat(args)
 
     result = nil
