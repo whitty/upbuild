@@ -116,20 +116,24 @@ describe "options" do
       Dir.chdir ".."
     end
 
+    def run_result(*args)
+      run(*args)[1]
+    end
+
     it "unmapped zero is unchanged" do
-      l,r = run('0') 
+      r = run_result('0')
       r.should eq(0)
     end
     it "one is mapped to zero (success)" do
-      l,r = run('1') 
+      r = run_result('1') 
       r.should eq(0)
     end
     it "two is mapped to 4 (fail)" do
-      l,r = run('2') 
+      r = run_result('2') 
       r.should eq(4)
     end
     it "four is mapped to 100 (fail)" do
-      l,r = run('4') 
+      r = run_result('4') 
       r.should eq(100)
     end
 

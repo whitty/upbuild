@@ -74,7 +74,7 @@ module Upbuild
   def parse_commands(lines, argv)
 
     build_lines = lines.map {|x| x.chomp.gsub(/#.*/,'') }.select {|x| x.length > 0}
-    commands = split_a(build_lines, "&&").map do |command_lines|
+    split_a(build_lines, "&&").map do |command_lines|
 
       command = command_lines.shift
       mandatory = []

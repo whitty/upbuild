@@ -102,6 +102,8 @@ describe "Running" do
       l,r = run do |p,inp|
         line = inp.readline.chomp
         pid = Integer(line)
+        pid.should_not be_nil
+
         # do nothing special, wait for it to end
       end
 
@@ -110,7 +112,7 @@ describe "Running" do
       l.first.should eq('second')
     end
 
-    it "if a ctrl-c arrives close gracefully, with fail" do
+    it "closes gracefully with a file if a ctrl-c arrives" do
       # script outputs parent id
       l,r,err = run() do |p,inp|
         line = inp.readline.chomp
