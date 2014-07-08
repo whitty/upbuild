@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # (C) Copyright Greg Whiteley 2013
-# 
+#
 #  This is free software: you can redistribute it and/or modify it
 #  under the terms of the GNU Lesser General Public License as
 #  published by the Free Software Foundation, either version 3 of
@@ -28,8 +28,6 @@ if !path
 end
 
 build_file = path + BUILD_FILE
-
-build_lines = File.readlines(build_file).map {|x| x.chomp.gsub(/#.*/,'') }.select {|x| x.length > 0}
 
 commands, opts = read_commands(build_file, ARGV)
 
@@ -87,7 +85,15 @@ Dir.chdir(path) do
       end
 
       if result
-        ret_val = result.last.exitstatus
+        status = result.last
+
+        if status.signaled?
+          ret_val = 0 - status.termsig
+          $stderr.puts status.to_s
+        else
+          ret_val = status.exitstatus
+        end
+
         puts "returned => #{ret_val}" if $DEBUG
 
         # check for a remapped return value

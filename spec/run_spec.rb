@@ -153,4 +153,57 @@ describe "Running" do
     end
   end
 
+  context "While running a command" do
+
+    before :all do
+      Dir.chdir "segv"
+    end
+
+    after :all do
+      Dir.chdir ".."
+    end
+
+    SEGV = 11
+    ABRT = 6
+
+    it "fails gracefully if command gets SEGV" do
+
+      # script outputs parent id
+      l,r,err = run
+
+      err.join.should_not match(/in <main>/)
+      err.join.should_not match(/bin\\upbuild/)
+
+      r.should eq(256 - SEGV)
+      l.length.should eq(1)
+      l.first.should match(/killing with SEGV/)
+    end
+
+    it "fails gracefully if command gets ABRT" do
+
+      # script outputs parent id
+      l,r,err = run('ABRT')
+
+      err.join.should_not match(/in <main>/)
+      err.join.should_not match(/bin\\upbuild/)
+
+      r.should eq(256 - ABRT)
+      l.length.should eq(1)
+      l.first.should match(/killing with ABRT/)
+    end
+
+    it "fails gracefully if command gets -9" do
+
+      # script outputs parent id
+      l,r,err = run('9')
+
+      err.join.should_not match(/in <main>/)
+      err.join.should_not match(/bin\\upbuild/)
+
+      r.should eq(256 - 9)
+      l.length.should eq(1)
+      l.first.should match(/killing with 9/)
+    end
+  end
+
 end
