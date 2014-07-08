@@ -1,7 +1,7 @@
 #/usr/bin/env ruby -w
 
 # (C) Copyright Greg Whiteley 2010-2013
-# 
+#
 #  This is free software: you can redistribute it and/or modify it
 #  under the terms of the GNU Lesser General Public License as
 #  published by the Free Software Foundation, either version 3 of
@@ -33,49 +33,49 @@ describe "arguments" do
   end
 
   it "uses all args in default run" do
-    l,r = run() 
+    l,r = run()
     r.should eq(0)
     l.length.should eq(1)
     l.first.should eq("hello world its monday")
   end
 
   it "replaces arguments after the -- if provided" do
-    l,r = run('c\'est', 'moi') 
+    l,r = run('c\'est', 'moi')
     r.should eq(0)
     l.length.should eq(1)
     l.first.should eq("hello world c'est moi")
   end
 
   it "consumes -- as if it wasn't there" do
-    l,r = run('--') 
+    l,r = run('--')
     r.should eq(0)
     l.length.should eq(1)
     l.first.should eq("hello world its monday")
   end
 
   it "consumes -- once then passes all others" do
-    l,r = run('--', '--') 
+    l,r = run('--', '--')
     r.should eq(0)
     l.length.should eq(1)
     l.first.should eq("hello world --")
   end
 
   it "consumes --- like --" do
-    l,r = run('---', 'today') 
+    l,r = run('---', 'today')
     r.should eq(0)
     l.length.should eq(1)
     l.first.should eq("hello world today")
   end
 
   it "treats --- like --, but passing argument truncation down" do
-    l,r = run('---') 
+    l,r = run('---')
     r.should eq(0)
     l.length.should eq(1)
     l.first.should eq("hello world")
   end
 
   it "consumes --- once then passes all others" do
-    l,r = run('---', '---') 
+    l,r = run('---', '---')
     r.should eq(0)
     l.length.should eq(1)
     l.first.should eq("hello world ---")
@@ -83,18 +83,18 @@ describe "arguments" do
 
   it "consumes known arguments at the start" do
     [
-     ['--ub-select=5'],
-     ['--ub-select=blah', '--'],
+     ['--ub-print'],
+     ['--ub-print', '--'],
     ].each do | args |
-      l,r = run(*args) 
+      l,r = run(*args)
       r.should eq(0)
       l.length.should eq(1)
-      l.first.should eq("hello world its monday")
+      l.first.should eq("echo hello world its monday")
     end
   end
 
   it "passes unknown arguments through" do
-    [ 
+    [
      ['--ub-unknown'],
      ['--ub-unknown=1'],
     ].each do | args |
@@ -105,30 +105,29 @@ describe "arguments" do
     end
   end
 
-  # TODO - choose a more benign argument than --ub-select to test
-  # passing of arguments.
   it "passes known arguments after --" do
-    [ 
-     ['--', '--ub-select=5'],
-     ['--', '--ub-select=blah'],
+    [
+     ['--', '--ub-print'],
+     ['--', '---'],
     ].each do | args |
-      l,r = run(*args) 
+      l,r = run(*args)
       args.shift                # consume the --
       r.should eq(0)
       l.length.should eq(1)
+      l.first.should_not match(/echo/) # Shouldn't have triggered --ub-print
       l.first.should eq("hello world #{args.join(' ')}")
     end
   end
 
   it "prints command if --ub-print specified" do
-    l,r = run('--ub-print') 
+    l,r = run('--ub-print')
     r.should eq(0)
     l.length.should eq(1)
     l.first.should eq("echo hello world its monday")
   end
 
   it "prints command if --ub-print specified including args" do
-    l,r = run('--ub-print', 'good', 'morning') 
+    l,r = run('--ub-print', 'good', 'morning')
     r.should eq(0)
     l.length.should eq(1)
     l.first.should eq("echo hello world good morning")

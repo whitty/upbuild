@@ -1,7 +1,4 @@
 echo
-# Temporary - need to define tags because we are using --ub-select to test
-# argument pass-through.  Should chnage to a more benign example
-@tags=blah,5
 hello
 world
 --
