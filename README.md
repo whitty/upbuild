@@ -1,5 +1,7 @@
 # Upbuild
 
+![build-status-icon](https://travis-ci.org/whitty/upbuild.svg?branch=master)
+
 Simple directory tree build helper
 
 ## Installation
