@@ -28,7 +28,7 @@ module Upbuild
   def read_commands(build_file, argv)
     args, opts = parse_args(argv)
     commands = parse_commands(File.readlines(build_file), args)
-    [filter_commands(commands, opts[:select]), opts]
+    [filter_commands(commands, opts[:select], opts[:reject]), opts]
   end
 
   # The returned argv is nil if nothing specified or empty [] if just
@@ -42,6 +42,14 @@ module Upbuild
       case arg
       when /^--ub-select=(.+)$/
         opts[:select]=$1
+        if opts[:reject] and opts[:select] == opts[:reject]
+          opts.delete(:reject) # override older
+        end
+      when /^--ub-reject=(.+)$/
+        opts[:reject]=$1
+        if opts[:select] and opts[:select] == opts[:reject]
+          opts.delete(:select) # override older
+        end
       when /^--ub-print$/
         opts[:print]=true
       when "---"
@@ -64,16 +72,29 @@ module Upbuild
     return argv, opts
   end
 
-  def filter_commands(commands, selection)
+  def filter_commands(commands, selection, rejection)
     commands.select do |c|
       if c.opts and c.opts[:disable]
         false                   # disabled
-      elsif selection
+      elsif selection or rejection
         if c.opts and c.opts[:tags]
           tags = c.opts[:tags].split(',')
-          tags.member?(selection.to_s)
+          if selection
+            if tags.member?(selection.to_s)
+              # select if no rejections, or if rejections present, but we don't match
+              !rejection or !tags.member?(rejection.to_s)
+            else
+              false # not selected
+            end
+          else # rejection defined (but not selection)
+            !tags.member?(rejection.to_s) #if not rejected
+          end
         else
-          false                 # selection defined, but no tags
+          if selection and not rejection
+            false                 # selection defined, but no tags
+          elsif rejection and not selection
+            true                  # rejection defined, but no tags - include them
+          end
         end
       else
         true                    # include all others

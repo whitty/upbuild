@@ -67,6 +67,13 @@ describe :parse_args do
     opts.should eq({:select => '<something>'})
   end
 
+  it "understands --ub-reject=<something>" do
+    in_args = ['a','b','c']
+    args, opts = parse_args(['--ub-reject=<something>'] + in_args)
+    args.should eq(in_args)
+    opts.should eq({:reject => '<something>'})
+  end
+
   it "just --- works like --" do
     in_args = ['---']
     args, opts = parse_args(in_args)

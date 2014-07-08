@@ -1,7 +1,7 @@
 #/usr/bin/env ruby -w
 
 # (C) Copyright Greg Whiteley 2010-2013
-# 
+#
 #  This is free software: you can redistribute it and/or modify it
 #  under the terms of the GNU Lesser General Public License as
 #  published by the Free Software Foundation, either version 3 of
@@ -36,14 +36,14 @@ describe "options" do
 
   context "When option present" do
     it "won't emit option without args" do
-      l,r = run() 
+      l,r = run()
       r.should eq(0)
       l.length.should eq(1)
       l.first.should eq("hello world its monday")
     end
 
     it "won't emit option with args" do
-      l,r = run('c\'est', 'moi') 
+      l,r = run('c\'est', 'moi')
       r.should eq(0)
       l.length.should eq(1)
       l.first.should eq("hello world c'est moi")
@@ -66,7 +66,7 @@ describe "options" do
 
     it "will emit the file at the end" do
       Dir.chdir "outfile" do
-        l,r = run() 
+        l,r = run()
         r.should eq(0)
         l.length.should eq(1)
         l.first.should eq("hello world into file")
@@ -74,7 +74,7 @@ describe "options" do
     end
     it "will emit the file at the end - with args" do
       Dir.chdir "outfile" do
-        l,r = run('its a', 'file') 
+        l,r = run('its a', 'file')
         r.should eq(0)
         l.length.should eq(1)
         l.first.should eq("hello world its a file")
@@ -82,7 +82,7 @@ describe "options" do
     end
     it "will emit the file at the end even on failure" do
       Dir.chdir "outfile/fail" do
-        l,r = run() 
+        l,r = run()
         r.should eq(1)
         l.length.should eq(1)
         l.first.should eq("error: badness")
@@ -125,21 +125,21 @@ describe "options" do
       r.should eq(0)
     end
     it "one is mapped to zero (success)" do
-      r = run_result('1') 
+      r = run_result('1')
       r.should eq(0)
     end
     it "two is mapped to 4 (fail)" do
-      r = run_result('2') 
+      r = run_result('2')
       r.should eq(4)
     end
     it "four is mapped to 100 (fail)" do
-      r = run_result('4') 
+      r = run_result('4')
       r.should eq(100)
     end
 
     it "Bad formats are reported with fail" do
       Dir.chdir "error" do
-        l,r,err = run('4') 
+        l,r,err = run('4')
         r.should eq(253)
         # no output on stdout
         l.length.should eq(0)
@@ -165,7 +165,7 @@ describe "options" do
 
     it "will skip the single command marked as @disable" do
       Dir.chdir "one" do
-        l,r = run() 
+        l,r = run()
         r.should eq(0)
         l.length.should eq(2)
         l.first.should eq("one")
@@ -175,7 +175,7 @@ describe "options" do
 
     it "will skip the only command if marked @disable" do
       Dir.chdir "all_one" do
-        l,r = run() 
+        l,r = run()
         r.should eq(255)
         l.length.should eq(0)
       end
@@ -183,7 +183,7 @@ describe "options" do
 
     it "will skip all commands if all marked @disable" do
       Dir.chdir "all" do
-        l,r = run() 
+        l,r = run()
         r.should eq(255)
         l.length.should eq(0)
       end
@@ -201,30 +201,84 @@ describe "options" do
     end
 
     it "is ignored by default" do
-      l,r = run() 
+      l,r = run()
       r.should eq(0)
       l.should eq(['zero', 'one', 'two', 'three', 'four'])
     end
 
-    it "selects only tags that match (1)" do
-      l,r = run('--ub-select=odd') 
+    it "selects only tags that match (1)", :selects => true do
+      l,r = run('--ub-select=odd')
       r.should eq(0)
       l.should eq(['one', 'three'])
     end
-    it "selects only tags that match (2)" do
-      l,r = run('--ub-select=even') 
+    it "selects only tags that match (2)", :selects => true do
+      l,r = run('--ub-select=even')
       r.should eq(0)
       l.should eq(['two', 'four'])
     end
-    it "selects only tags that match (3)" do
-      l,r = run('--ub-select=last') 
+    it "selects only tags that match (3)", :selects => true do
+      l,r = run('--ub-select=last')
       r.should eq(0)
       l.should eq(['four'])
     end
-    it "selects only tags that match (4)" do
-      l,r = run('--ub-select=prime') 
+    it "selects only tags that match (4)", :selects => true do
+      l,r = run('--ub-select=prime')
       r.should eq(0)
       l.should eq(['one', 'two', 'three'])
+    end
+
+    it "rejects only tags that match (1)", :rejects => true do
+      l,r = run('--ub-reject=odd')
+      r.should eq(0)
+      l.should eq(['zero', 'two', 'four'])
+    end
+    it "rejects only tags that match (2)", :rejects => true do
+      l,r = run('--ub-reject=even')
+      r.should eq(0)
+      l.should eq(['zero', 'one', 'three'])
+    end
+    it "rejects only tags that match (3)", :rejects => true do
+      l,r = run('--ub-reject=last')
+      r.should eq(0)
+      l.should eq(['zero', 'one', 'two', 'three'])
+    end
+    it "rejects only tags that match (4)", :rejects => true do
+      l,r = run('--ub-reject=prime')
+      r.should eq(0)
+      l.should eq(['zero', 'four'])
+    end
+
+    it "rejects any selected tags if they match the reject definition (1)", :selects => true, :rejects => true do
+      l,r = run('--ub-select=even','--ub-reject=prime')
+      r.should eq(0)
+      l.should eq(['four'])
+    end
+    it "rejects any selected tags if they match the reject definition (2)", :selects => true, :rejects => true do
+      l,r = run('--ub-select=even','--ub-reject=last')
+      r.should eq(0)
+      l.should eq(['two'])
+    end
+    it "rejects any selected tags if they match the reject definition (3)", :selects => true, :rejects => true do
+      l,r = run('--ub-reject=last', '--ub-select=even') # swapped order
+      r.should eq(0)
+      l.should eq(['two'])
+    end
+    it "rejects any selected tags if they match the reject definition (4)", :selects => true, :rejects => true do
+      l,r = run('--ub-select=prime','--ub-reject=odd')
+      r.should eq(0)
+      l.should eq(['two'])
+    end
+
+    it "last of select/reject decides who wins if same tag given match (1)", :selects => true, :rejects => true do
+      l,r = run('--ub-select=prime','--ub-reject=prime')
+      r.should eq(0)
+      l.should eq(['zero', 'four']) # reject wins
+    end
+
+    it "last of select/reject decides who wins if same tag given match (2)", :selects => true, :rejects => true do
+      l,r = run('--ub-reject=prime', '--ub-select=prime')
+      r.should eq(0)
+      l.should eq(['one', 'two', 'three']) # select wins
     end
 
   end

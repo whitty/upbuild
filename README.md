@@ -157,6 +157,15 @@ When run as `upbuild` all commands will run - select a subset using
 `--ub-select=<tag>`.  Eg running `upbuild --ub-select=host` would
 exclude the `make cross` command.
 
+Alternatively you can use `--ub-reject=<tag>` to exclude based on
+tags.   Eg running `upbuild --ub-reject=host` would
+only run the `make cross` command.  When both select and reject are
+specified - tags must both match the selected tag, and not match the
+rejected tag.
+
+If both reject and select refer to the same tag, whichever command is
+specified *last* will take effect.
+
 ### Recursive calls
 
 If the command being invoked is upbuild itself it will be invoked from
