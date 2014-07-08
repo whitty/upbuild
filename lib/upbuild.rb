@@ -31,7 +31,12 @@ module Upbuild
     [filter_commands(commands, opts[:select]), opts]
   end
 
+  # The returned argv is nil if nothing specified or empty [] if just
+  # --- specified (ie should replace optional parameters will nothing
   def parse_args(argv)
+
+    truncate = false
+
     opts = {}
     while arg = argv.first
       case arg
@@ -39,6 +44,10 @@ module Upbuild
         opts[:select]=$1
       when /^--ub-print$/
         opts[:print]=true
+      when "---"
+        truncate = true
+        argv.shift
+        break
       when "--"
         argv.shift
         break
@@ -47,6 +56,11 @@ module Upbuild
       end
       argv.shift
     end
+
+    if argv.length == 0 and !truncate
+      argv = nil
+    end
+
     return argv, opts
   end
 
@@ -91,7 +105,7 @@ module Upbuild
         args = args[split + 1..-1]
       end
 
-      if argv.length > 0
+      unless argv.nil?
         args = argv
       end
 

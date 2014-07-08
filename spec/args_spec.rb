@@ -60,8 +60,29 @@ describe "arguments" do
     l.first.should eq("hello world --")
   end
 
+  it "consumes --- like --" do
+    l,r = run('---', 'today') 
+    r.should eq(0)
+    l.length.should eq(1)
+    l.first.should eq("hello world today")
+  end
+
+  it "treats --- like --, but passing argument truncation down" do
+    l,r = run('---') 
+    r.should eq(0)
+    l.length.should eq(1)
+    l.first.should eq("hello world")
+  end
+
+  it "consumes --- once then passes all others" do
+    l,r = run('---', '---') 
+    r.should eq(0)
+    l.length.should eq(1)
+    l.first.should eq("hello world ---")
+  end
+
   it "consumes known arguments at the start" do
-    [ 
+    [
      ['--ub-select=5'],
      ['--ub-select=blah', '--'],
     ].each do | args |

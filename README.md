@@ -62,6 +62,27 @@ that succeeds run `make TARGET=release tests`.  If you want to publish
 both you could build a target other than tests by specifying it on the
 command-line.  eg: `upbuild publish`.
 
+### Argument parsing and `--`
+
+On the command `--` works like other GNU command parsing, no further
+interpretation of commands is performed by `upbuild`.
+
+To invoke commands with just the mandatory parts you need to pass an
+argument in (but don't want it to take effect), so for a sub-command
+that takes `--` you could use:
+
+```
+upbuild -- --
+```
+
+With the second being passed to the command, thus discarding the
+overridable parameters.  Of course not every commands supports `--`,
+so `upbuild` allows allows the argument `---` to mean 'like `--`, but
+also truncate the command to just the mandatory parts'.
+
+```
+upbuild ---
+```
 
 ### Getting output from GUI commands
 

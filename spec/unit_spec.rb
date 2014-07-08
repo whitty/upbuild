@@ -35,7 +35,7 @@ describe :parse_args do
   it "just -- leave nothing" do
     in_args = ['--']
     args, opts = parse_args(in_args)
-    args.should be_empty
+    args.should be_nil
     opts.should be_empty
   end
 
@@ -65,6 +65,49 @@ describe :parse_args do
     args, opts = parse_args(['--ub-select=<something>'] + in_args)
     args.should eq(in_args)
     opts.should eq({:select => '<something>'})
+  end
+
+  it "just --- works like --" do
+    in_args = ['---']
+    args, opts = parse_args(in_args)
+    args.should be_empty
+    opts.should be_empty
+  end
+
+end
+
+describe :parse_commands do
+
+  it "generates full command with no args", :foo => true do
+    in_args = []
+    args, _ = parse_args(in_args)
+    commands = parse_commands(['echo', 'hello', '--', 'world'], args)
+    commands.length.should eq(1)
+    commands.first.args.should eq(['hello', 'world'])
+  end
+
+  it "generates full command with --", :foo => true do
+    in_args = ['--']
+    args, _ = parse_args(in_args)
+    commands = parse_commands(['echo', 'hello', '--', 'world'], args)
+    commands.length.should eq(1)
+    commands.first.args.should eq(['hello', 'world'])
+  end
+
+  it "truncates command with ---", :foo => true do
+    in_args = ['---']
+    args, _ = parse_args(in_args)
+    commands = parse_commands(['echo', 'hello', '--', 'world'], args)
+    commands.length.should eq(1)
+    commands.first.args.should eq(['hello'])
+  end
+
+  it "truncates command with ---, wth trailing args", :foo => true do
+    in_args = ['---', 'there']
+    args, _ = parse_args(in_args)
+    commands = parse_commands(['echo', 'hello', '--', 'world'], args)
+    commands.length.should eq(1)
+    commands.first.args.should eq(['hello', 'there'])
   end
 
 end
