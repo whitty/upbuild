@@ -47,7 +47,17 @@ end
 # the .chdir scope
 path = path.realpath
 
-Dir.chdir(path) do
+def chdir(path, opts)
+  prev = Pathname(Dir.getwd).realpath
+  Dir.chdir(path) do
+    if path.realpath != prev.realpath
+      puts "upbuild: Entering directory `#{path}'"
+    end
+    yield
+  end
+end
+
+chdir(path, opts) do
 
   commands.each  do  |command|
     puts [command.command, command.args] if $DEBUG
@@ -63,7 +73,7 @@ Dir.chdir(path) do
       end
     end
 
-    Dir.chdir(sub_path) do
+    chdir(sub_path, opts) do
 
       result = nil
       begin
