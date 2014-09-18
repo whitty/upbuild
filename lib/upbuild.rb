@@ -87,7 +87,12 @@ module Upbuild
               false # not selected
             end
           else # rejection defined (but not selection)
-            !tags.member?(rejection.to_s) #if not rejected
+            # if no selection and manual, don't run it
+            if c.opts and c.opts[:manual]
+              false
+            else
+              !tags.member?(rejection.to_s) #if not rejected
+            end
           end
         else
           if selection and not rejection
@@ -96,6 +101,8 @@ module Upbuild
             true                  # rejection defined, but no tags - include them
           end
         end
+      elsif c.opts and c.opts[:manual]
+        false
       else
         true                    # include all others
       end
@@ -116,7 +123,7 @@ module Upbuild
         if opt
           opts[opt[1].to_sym] = opt.post_match
         else
-          opt = x.match(/^@(disable)\s*$/)
+          opt = x.match(/^@(disable|manual)\s*$/)
           opts[opt[1].to_sym] = true if opt
         end
       end

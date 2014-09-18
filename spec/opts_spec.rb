@@ -200,16 +200,16 @@ describe "options" do
       Dir.chdir ".."
     end
 
-    it "is ignored by default" do
+    it "is ignored by default, also ignores @manual" do
       l,r = run()
       r.should eq(0)
       l.should eq(['zero', 'one', 'two', 'three', 'four'])
     end
 
-    it "selects only tags that match (1)", :selects => true do
+    it "selects only tags that match (1), including @manual", :selects => true do
       l,r = run('--ub-select=odd')
       r.should eq(0)
-      l.should eq(['one', 'three'])
+      l.should eq(['one', 'three', 'five'])
     end
     it "selects only tags that match (2)", :selects => true do
       l,r = run('--ub-select=even')
@@ -221,10 +221,10 @@ describe "options" do
       r.should eq(0)
       l.should eq(['four'])
     end
-    it "selects only tags that match (4)", :selects => true do
+    it "selects only tags that match (4), including @manual", :selects => true do
       l,r = run('--ub-select=prime')
       r.should eq(0)
-      l.should eq(['one', 'two', 'three'])
+      l.should eq(['one', 'two', 'three', 'five'])
     end
 
     it "rejects only tags that match (1)", :rejects => true do
@@ -278,7 +278,7 @@ describe "options" do
     it "last of select/reject decides who wins if same tag given match (2)", :selects => true, :rejects => true do
       l,r = run('--ub-reject=prime', '--ub-select=prime')
       r.should eq(0)
-      l.should eq(['one', 'two', 'three']) # select wins
+      l.should eq(['one', 'two', 'three', 'five']) # select wins
     end
 
   end

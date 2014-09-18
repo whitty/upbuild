@@ -17,3 +17,8 @@ three
 echo
 @tags=even,last
 four
+&&
+echo
+@manual
+@tags=odd,prime
+five

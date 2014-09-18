@@ -166,6 +166,23 @@ rejected tag.
 If both reject and select refer to the same tag, whichever command is
 specified *last* will take effect.
 
+To prevent a command being run unless a `@tag` is specifically selected mark it `@manual`.  Running the following without parameters won't run the `make install` step, but selecting `release` or `host` will:
+
+```
+make
+@tags=host
+tests
+&&
+make
+@tags=target
+cross
+&&
+make
+@manual
+@tags=release,host
+install
+```
+
 ### Recursive calls
 
 If the command being invoked is upbuild itself it will be invoked from
