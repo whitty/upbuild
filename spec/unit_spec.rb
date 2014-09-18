@@ -118,3 +118,44 @@ describe :parse_commands do
   end
 
 end
+
+describe :get_global_opts do
+
+  it "passes through unchanged with no commands", :foo => true do
+    opts = {:foo => :bar}
+    new = get_global_opts([], opts)
+    new.should eq(opts)
+  end
+
+  it "passes through unchanged with unrecognised options", :foo => true do
+    opts = {:foo => :bar}
+    new = get_global_opts([Command.new('echo', [], {:bar => :foo})], opts)
+    new.should eq(opts)
+  end
+
+  it "adds on new :quiet option from commands", :foo => true do
+    opts = {:foo => :bar}
+    new = get_global_opts([Command.new('echo', [], {:quiet => :foo})], opts)
+    new.should_not eq(opts)
+    opts[:quiet] = :foo
+    new.should eq(opts)
+  end
+
+  it "adds on new :quiet option from commands, last one wins", :foo => true do
+    opts = {:foo => :bar}
+    new = get_global_opts([
+                           Command.new('echo', ['1'], {:quiet => :foo}),
+                           Command.new('echo', ['2'], {:quiet => :true}),
+                          ], opts)
+    new.should_not eq(opts)
+    opts[:quiet] = :true
+    new.should eq(opts)
+  end
+
+  it "passes through unchanged if already set", :foo => true do
+    opts = {:quiet => :false}
+    new = get_global_opts([Command.new('echo', ['1'], {:bar => :foo})], opts)
+    new.should eq(opts)
+  end
+
+end

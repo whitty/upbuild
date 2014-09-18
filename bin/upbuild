@@ -51,7 +51,7 @@ def chdir(path, opts)
   prev = Pathname(Dir.getwd).realpath
   Dir.chdir(path) do
     if path.realpath != prev.realpath
-      puts "upbuild: Entering directory `#{path}'"
+      puts "upbuild: Entering directory `#{path}'" unless opts[:quiet]
     end
     yield
   end

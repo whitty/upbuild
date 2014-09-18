@@ -109,6 +109,30 @@ describe "basic levels" do
 
   end
 
+  describe "@quiet option" do
+
+    it "Should emit normally" do
+      Dir.chdir 'quiet' do
+        l,r = run()
+        r.should eq(0)
+
+        l.length.should eq(1)
+        l.first.should eq('quiet')
+      end
+    end
+
+    it "Should suppress 'entering directory' when moving up the tree" do
+      Dir.chdir 'quiet/deeper' do
+        l,r = run()
+        r.should eq(0)
+
+        l.length.should eq(1)
+        l.first.should eq('quiet')
+      end
+    end
+
+  end
+
 end
 
 describe "level recursion" do

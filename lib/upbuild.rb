@@ -28,6 +28,7 @@ module Upbuild
   def read_commands(build_file, argv)
     args, opts = parse_args(argv)
     commands = parse_commands(File.readlines(build_file), args)
+    opts = get_global_opts(commands, opts)
     [filter_commands(commands, opts[:select], opts[:reject]), opts]
   end
 
@@ -123,7 +124,7 @@ module Upbuild
         if opt
           opts[opt[1].to_sym] = opt.post_match
         else
-          opt = x.match(/^@(disable|manual)\s*$/)
+          opt = x.match(/^@(disable|manual|quiet)\s*$/)
           opts[opt[1].to_sym] = true if opt
         end
       end
@@ -141,6 +142,21 @@ module Upbuild
 
       command ? Command.new(command, args, opts) : nil
     end.select {|x| x}
+  end
+
+  GLOBAL_OPTS = [:quiet]
+
+  def get_global_opts(commands, opts)
+    new_opts = {}
+    # don't override command-line opts
+    global_opts = GLOBAL_OPTS.select {|x| !opts.member?(x)}
+    # last command wins
+    commands.each do |x|
+      global_opts.each do |global_opt|
+        new_opts[global_opt] = x.opts[global_opt] if x.opts.member?(global_opt)
+      end
+    end
+    opts.merge(new_opts)
   end
 
   def parse_retmap(s)
