@@ -1,6 +1,6 @@
 # Upbuild
 
-![build-status-icon](https://travis-ci.org/whitty/upbuild.svg?branch=master)
+[![Build Status](https://travis-ci.org/whitty/upbuild.svg?branch=master)](https://travis-ci.org/whitty/upbuild)
 
 Simple directory tree build helper
 
