@@ -1,5 +1,5 @@
 # (C) Copyright Greg Whiteley 2010-2013
-# 
+#
 #  This is free software: you can redistribute it and/or modify it
 #  under the terms of the GNU Lesser General Public License as
 #  published by the Free Software Foundation, either version 3 of
@@ -17,6 +17,15 @@ require 'enumerator'
 require 'tmpdir'
 require 'pp'
 
+RSpec.configure do |config|
+  config.expect_with :rspec do |c|
+    c.syntax = [:should, :expect]  # default, enables both `should` and `expect`
+  end
+  config.mock_with :rspec do |c|
+    c.syntax = [:should, :expect]  # default, enables both `should` and `expect`
+  end
+end
+
 shared_context "command run" do
   before :all do
     @base = Dir.getwd
@@ -30,7 +39,7 @@ shared_context "command run" do
   # If block provided yield the pid to it.
   # After proc is complete block waiting on completion.
   def run(*args, &block)
-    
+
     command = ['env', "PATH=#{Pathname(@base) + 'bin'}:#{ENV['PATH']}", "RUBYLIB=#{Pathname(@base) + 'lib'}", 'ruby', (Pathname(@base) + 'bin' + 'upbuild').to_s]
     command.concat(args)
 
