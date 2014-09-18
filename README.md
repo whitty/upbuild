@@ -100,7 +100,7 @@ files, so we may synthesise some output.
 
 The following build will execute "uv4 -j0 -b project.uvproj -o
 log.txt" and emit the contents of log.txt at the end of the run -
-irrespective of sucess or failure.
+irrespective of success or failure.
 
 ### Fixing odd error codes
 
@@ -185,7 +185,7 @@ scoping.
 Invoking upbuild in the component1 directory will build the local
 component, then pass up the chain for the next action - relinking.
 
-Combine this with --ub-select to rebuild a single tage based on your
+Combine this with --ub-select to rebuild a single tag based on your
 location.  For example assuming the .upbuild file from the @tags
 example, you may have the following in a target sub-directory:
 
