@@ -82,6 +82,51 @@ describe "basic levels" do
 
   end
 
+  describe "Follows @cd to other points in the tree" do
+
+    it "runs in the right directory" do
+      wd = Pathname(Dir.getwd)
+      # 5 runs pwd but uses @cd to run from another directory
+      succeed_1_match("wd/1/2/5", wd + 'wd/1/2/3/4')
+    end
+
+    it "runs in the right directory via upbuild" do
+      wd = Pathname(Dir.getwd)
+
+      # 6 runs upbuild, but uses @cd into 4:
+      #   first direct via @cd into 4, then from 4 -> 3
+      matches = [wd + 'wd/1/2/3/4', wd + 'wd/1/2/3']
+
+      Dir.chdir "wd/1/2/6" do
+        l,r = run()
+        r.should eq(0)
+
+        # allow for Entering directory notice
+        matches.each do |match|
+          l.length.should be >= 1
+          if l.first =~ /Entering directory/
+            l.first.should match(/^upbuild: Entering directory `.*#{match}'$/)
+            l.shift
+          end
+        end
+
+        l.length.should eq(1)
+        l.first.should eq(matches.last.to_s)
+      end
+    end
+
+    it "errors if the target directory doesn't exist" do
+
+      Dir.chdir "wd/1/2/7" do
+        l,r = run()
+        r.should eq(251)
+        l.length.should eq(0)
+      end
+
+    end
+
+  end
+
   describe "emits 'Entering directory'" do
 
     it "when path changes" do

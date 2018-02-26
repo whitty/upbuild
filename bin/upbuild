@@ -62,15 +62,37 @@ chdir(path, opts) do
   commands.each  do  |command|
     puts [command.command, command.args] if $DEBUG
 
+    sub_path = path
+    # handle @cd by changing path if specified
+    cd_path = nil
+    cd_path = command.opts.fetch(:cd, nil) if command.opts
+    unless cd_path.nil?
+      cd_path = Pathname(cd_path)
+      if cd_path.exist?
+        cd_path = cd_path.realpath
+      else
+        exit(-5)
+      end
+    end
+
     # Support recursive upbuild by dropping back a level if command is
     # 'upbuild'
-    sub_path = path
     if command.command == 'upbuild'
-      sub_path = path + '..'
+      # for cd_path, with upbuild, don't do the recurse step
+      # so we can redirect using `upbuild @cd=...`
+      unless cd_path.nil?
+        sub_path = cd_path
+        # also avoid recursing
+      else
+        sub_path = path + '..'
+      end
       if sub_path.realpath == path.realpath
         $stderr.puts "Refusing to recurse into same directory"
         next
       end
+    else
+      # otherwise just take the alternate path
+      sub_path = cd_path unless cd_path.nil?
     end
 
     chdir(sub_path, opts) do

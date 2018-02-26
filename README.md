@@ -212,3 +212,22 @@ example, you may have the following in a target sub-directory:
 
 Builds under src/target will only invoke commands tagged with
 'target'.
+
+### Changing directory
+
+You can use the `@cd` directive to run the command from the specified
+directory.
+
+    $ cat .upbuild
+    run_from_specific_directory
+    @cd=/path/to/that/specific/directory
+
+This is most useful if you need to "shell-out" to a different upbuild
+tree:
+
+    $ cat .upbuild
+    make
+    -j8
+    &&
+    upbuild
+    @cd=/path/to/the/rest

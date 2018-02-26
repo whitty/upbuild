@@ -120,7 +120,7 @@ module Upbuild
       opts = {}
       args = command_lines
       args = args.reject do |x|
-        opt = x.match(/^@(outfile|retmap|tags)=/)
+        opt = x.match(/^@(outfile|retmap|tags|cd)=/)
         if opt
           opts[opt[1].to_sym] = opt.post_match
         else
