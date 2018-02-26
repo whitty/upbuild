@@ -231,3 +231,24 @@ tree:
     &&
     upbuild
     @cd=/path/to/the/rest
+
+### Quickly adding new commands
+
+Use `--ub-add` to quickly add commands to the .upbuild file
+
+    $ upbuild --ub-add make -j8
+    $ upbuild --ub-add make test
+    $ cat .upbuild
+    make
+    -j8
+    &&
+    make
+    test
+
+This can be handy if you want to resolve shell expansions into the
+file - ie:
+
+    $ upbuild --ub-add ls ~
+    $ cat .upbuild
+    ls
+    /home/user

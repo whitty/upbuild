@@ -21,6 +21,20 @@ require 'upbuild'
 
 include Upbuild
 
+# --ub-add adds the remaining arguments the end of the .upbuild file
+if ARGV.first == "--ub-add"
+  ARGV.shift
+  if ARGV.empty?
+    $stderr.puts "--ub-add requires arguments"
+    exit -6
+  end
+  File.open(".upbuild", "a") do |f|
+    f.puts('&&') unless f.stat.size == 0
+    f.puts(ARGV.join("\n"))
+  end
+  exit 0
+end
+
 path = find_build_path(Dir.getwd)
 if !path
   $stderr.puts "Couldn't find path to build from"
